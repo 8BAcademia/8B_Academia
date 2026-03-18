@@ -45,9 +45,7 @@ input, textarea {
     margin-bottom: 12px;
 }
 
-textarea {
-    resize: none;
-}
+textarea { resize: none; }
 
 input.error { border-color: red; }
 
@@ -73,9 +71,10 @@ input.error { border-color: red; }
     display: flex;
     justify-content: space-between;
     padding: 10px 20px;
+    z-index: 10;
 }
 
-.nav { display: flex; gap: 10px; }
+.nav { display: flex; gap: 10px; flex-wrap: wrap; }
 
 .nav-item {
     padding: 8px 14px;
@@ -149,13 +148,8 @@ input.error { border-color: red; }
     transition: 0.3s;
 }
 
-.switch-mini.active {
-    background: #4da6ff;
-}
-
-.switch-mini.active::after {
-    left: 16px;
-}
+.switch-mini.active { background: #4da6ff; }
+.switch-mini.active::after { left: 16px; }
 
 /* BOTÃO CRIAR */
 .create-btn {
@@ -179,9 +173,7 @@ input.error { border-color: red; }
     align-items: center;
 }
 
-.modal.active {
-    display: flex;
-}
+.modal.active { display: flex; }
 
 .modal-box {
     background: white;
@@ -191,9 +183,7 @@ input.error { border-color: red; }
     animation: fadeUp 0.3s;
 }
 
-.modal-box button {
-    margin-top: 12px;
-}
+.modal-box button { margin-top: 12px; }
 
 /* MENSAGENS DE ERRO */
 .msg-erro {
@@ -202,42 +192,27 @@ input.error { border-color: red; }
     font-size: 13px;
 }
 
-/* RESPONSIVO PARA CELULAR */
+/* RESPONSIVO COMPLETO PARA CELULAR */
 @media (max-width: 480px) {
-    body {
-        font-size: 16px;
+    body { font-size: 18px; }
+
+    .login-box, .modal-box { width: 95%; padding: 25px; }
+
+    input, textarea, .responder-box input {
+        padding: 14px; font-size: 18px; height: 50px;
     }
 
-    .login-box, .modal-box {
-        width: 90%;
-        padding: 20px;
-    }
+    .btn { padding: 12px 16px; font-size: 18px; height: 50px; }
 
-    input, textarea, .btn, .responder-box input {
-        padding: 12px;
-        font-size: 16px;
-        height: 44px;
-    }
+    .nav-item { padding: 12px 16px; font-size: 16px; }
 
-    .nav-item {
-        padding: 10px 12px;
-        font-size: 14px;
-    }
+    .create-btn { padding: 20px; font-size: 20px; }
 
-    .create-btn {
-        padding: 18px;
-        font-size: 18px;
-    }
+    .responder-box button { padding: 12px 16px; font-size: 16px; }
 
-    .responder-box button {
-        padding: 10px 14px;
-        font-size: 14px;
-    }
+    .post { padding: 20px; font-size: 18px; }
 
-    .post {
-        padding: 18px;
-        font-size: 16px;
-    }
+    .respostas { padding-left: 14px; }
 }
 </style>
 </head>
@@ -262,7 +237,6 @@ input.error { border-color: red; }
 </div>
 
 <div id="app" style="display:none">
-
     <div class="header">
         <div class="nav">
             <div class="nav-item active" onclick="trocar('pergunta', this)">Perguntas</div>
@@ -317,11 +291,7 @@ window.onload = () => {
     if(saved){
         usuario = saved.usuario;
         admin = saved.admin;
-
-        if(admin){
-            document.getElementById("adminLabel").style.display = "inline";
-        }
-
+        if(admin) document.getElementById("adminLabel").style.display = "inline";
         loginScreen.style.display="none";
         app.style.display="block";
         carregar();
@@ -331,105 +301,60 @@ window.onload = () => {
 function login(){
     let nome = user.value.trim();
     let senha = pass.value;
+    user.classList.remove("error"); userErro.innerText=""; erro.innerText="";
 
-    user.classList.remove("error");
-    userErro.innerText="";
-    erro.innerText="";
-
-    if(!nome){
-        userErro.innerText="Insira um nome de usuário válido";
-        user.classList.add("error");
-        return;
-    }
+    if(!nome){ userErro.innerText="Insira um nome de usuário válido"; user.classList.add("error"); return; }
 
     if(senha==="Turma8B") admin=false;
     else if(senha==="8B_adm") admin=true;
-    else{
-        erro.innerText="Senha incorreta";
-        pass.classList.add("error");
-        return;
-    }
+    else{ erro.innerText="Senha incorreta"; pass.classList.add("error"); return; }
 
     usuario = nome;
     localStorage.setItem("login", JSON.stringify({usuario,admin}));
-
-    if(admin){
-        document.getElementById("adminLabel").style.display = "inline";
-    }
+    if(admin) document.getElementById("adminLabel").style.display = "inline";
 
     loginScreen.style.display="none";
     app.style.display="block";
     carregar();
 }
 
-function logout(){
-    localStorage.removeItem("login");
-    location.reload();
-}
+function logout(){ localStorage.removeItem("login"); location.reload(); }
 
 function trocar(t, el){
     aba = t;
     document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
     document.getElementById(t).classList.add("active");
-
     document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
     el.classList.add("active");
 }
 
 function abrirModal(){ 
-    tituloErro.innerText="";
-    descErro.innerText="";
-    titulo.classList.remove("error");
-    desc.classList.remove("error");
+    tituloErro.innerText=""; descErro.innerText="";
+    titulo.classList.remove("error"); desc.classList.remove("error");
     modal.classList.add("active"); 
 }
 
-function fecharFora(e){
-    if(e.target.id==="modal") modal.classList.remove("active");
-}
+function fecharFora(e){ if(e.target.id==="modal") modal.classList.remove("active"); }
 
-function toggleAnon(){
-    anon = !anon;
-    anonBtn.classList.toggle("active");
-}
+function toggleAnon(){ anon = !anon; anonBtn.classList.toggle("active"); }
 
 function enviar(){
     let t = titulo.value.trim();
     let d = desc.value.trim();
-
-    tituloErro.innerText="";
-    descErro.innerText="";
-    titulo.classList.remove("error");
-    desc.classList.remove("error");
+    tituloErro.innerText=""; descErro.innerText="";
+    titulo.classList.remove("error"); desc.classList.remove("error");
 
     if(!t || !d){
-        if(!t){
-            tituloErro.innerText="Insira um título";
-            titulo.classList.add("error");
-        }
-        if(!d){
-            descErro.innerText="Insira uma descrição";
-            desc.classList.add("error");
-        }
+        if(!t){ tituloErro.innerText="Insira um título"; titulo.classList.add("error"); }
+        if(!d){ descErro.innerText="Insira uma descrição"; desc.classList.add("error"); }
         return;
     }
 
     let posts = JSON.parse(localStorage.getItem(aba)||"[]");
-
-    posts.unshift({
-        nome: anon ? "Anônimo" : usuario,
-        titulo: t,
-        desc: d,
-        respostas: []
-    });
-
+    posts.unshift({ nome: anon?"Anônimo":usuario, titulo: t, desc: d, respostas: [] });
     localStorage.setItem(aba, JSON.stringify(posts));
 
-    titulo.value="";
-    desc.value="";
-    anon=false;
-    anonBtn.classList.remove("active");
-
+    titulo.value=""; desc.value=""; anon=false; anonBtn.classList.remove("active");
     modal.classList.remove("active");
     carregar();
 }
@@ -438,70 +363,42 @@ function responder(index){
     let input = document.getElementById("resp-"+index);
     let texto = input.value.trim();
     let anonResp = document.getElementById("anonResp-"+index).classList.contains("active");
-
-    if(!texto){
-        alert("Escreva algo antes de continuar");
-        return;
-    }
+    if(!texto){ alert("Escreva algo antes de continuar"); return; }
 
     let posts = JSON.parse(localStorage.getItem(aba)||"[]");
-
-    posts[index].respostas.push({
-        nome: anonResp ? "Anônimo" : usuario,
-        texto
-    });
-
+    posts[index].respostas.push({ nome: anonResp?"Anônimo":usuario, texto });
     localStorage.setItem(aba, JSON.stringify(posts));
     carregar();
 }
 
 function carregar(){
     ["pergunta","materia","dever"].forEach(a=>{
-        let div = document.getElementById(a);
-        div.innerHTML="";
-
+        let div = document.getElementById(a); div.innerHTML="";
         let posts = JSON.parse(localStorage.getItem(a)||"[]");
 
-        if(posts.length===0){
-            div.innerHTML=`<div>Sem nenhuma postagem</div>`;
-            return;
-        }
+        if(posts.length===0){ div.innerHTML=`<div>Sem nenhuma postagem</div>`; return; }
 
         posts.forEach((p,i)=>{
-            let respostasHTML = "";
-            p.respostas.forEach(r=>{
-                respostasHTML += `<div class="resposta"><b>${r.nome}:</b> ${r.texto}</div>`;
-            });
+            let respostasHTML = ""; p.respostas.forEach(r=>{ respostasHTML += `<div class="resposta"><b>${r.nome}:</b> ${r.texto}</div>`; });
 
-            let el = document.createElement("div");
-            el.className="post";
-
+            let el = document.createElement("div"); el.className="post";
             el.innerHTML=`
                 <b>${p.nome}</b>
                 <div>${p.titulo}</div>
                 <div>${p.desc}</div>
-
                 <div class="respostas">${respostasHTML}</div>
-
                 <div class="responder-box">
                     <input id="resp-${i}" placeholder="Responder...">
                     <div id="anonResp-${i}" class="switch-mini" onclick="this.classList.toggle('active')"></div>
                     <button class="btn" onclick="responder(${i})">Enviar</button>
                 </div>
             `;
-
             if(admin){
                 let b = document.createElement("button");
-                b.className="btn";
-                b.innerText="Excluir";
-                b.onclick=()=>{
-                    posts.splice(i,1);
-                    localStorage.setItem(a, JSON.stringify(posts));
-                    carregar();
-                };
+                b.className="btn"; b.innerText="Excluir";
+                b.onclick=()=>{ posts.splice(i,1); localStorage.setItem(a, JSON.stringify(posts)); carregar(); };
                 el.appendChild(b);
             }
-
             div.appendChild(el);
         });
     });
@@ -511,4 +408,4 @@ window.addEventListener("storage", carregar);
 </script>
 
 </body>
-</html> 
+</html>
