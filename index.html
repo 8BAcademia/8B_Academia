@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Plataforma Academia</title>
+<title>Sistema Escolar</title>
 
 <style>
 body {
@@ -56,14 +56,12 @@ button {
 /* APP */
 .app { display: none; }
 
-/* NAVBAR BONITA */
 .nav {
     display: flex;
     justify-content: center;
     gap: 20px;
     background: white;
     padding: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 .nav-item {
@@ -71,12 +69,6 @@ button {
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
-    color: #555;
-    transition: 0.2s;
-}
-
-.nav-item:hover {
-    background: #eaf4ff;
 }
 
 .nav-item.active {
@@ -84,24 +76,12 @@ button {
     color: white;
 }
 
-/* CONTEÚDO */
 .content {
     padding: 20px;
 }
 
-.tab {
-    display: none;
-    animation: fadeIn 0.2s;
-}
-
-.tab.active {
-    display: block;
-}
-
-@keyframes fadeIn {
-    from {opacity:0}
-    to {opacity:1}
-}
+.tab { display: none; }
+.tab.active { display: block; }
 
 /* POSTS */
 .post {
@@ -109,6 +89,11 @@ button {
     padding: 15px;
     border-radius: 10px;
     margin-bottom: 10px;
+}
+
+.empty {
+    text-align: center;
+    color: #777;
 }
 
 /* BOTÃO + */
@@ -144,7 +129,6 @@ button {
 
 <body>
 
-<!-- LOGIN -->
 <div id="loginScreen" class="login-container">
     <div class="login-box">
         <h2>Entrar</h2>
@@ -160,7 +144,6 @@ button {
     </div>
 </div>
 
-<!-- APP -->
 <div id="app" class="app">
 
     <div class="nav">
@@ -171,18 +154,16 @@ button {
 
     <div class="content">
         <div id="pergunta" class="tab active"></div>
-        <div id="materia" class="tab">Área de matérias</div>
-        <div id="dever" class="tab">Área de deveres</div>
+        <div id="materia" class="tab"></div>
+        <div id="dever" class="tab"></div>
     </div>
 
     <button id="fab" class="fab" onclick="abrirModal()">+</button>
 </div>
 
-<!-- MODAL -->
 <div id="modal" class="modal">
     <div class="modal-box">
-
-        <h3>Criar postagem</h3>
+        <h3 id="modalTitle">Criar postagem</h3>
 
         <label>Título</label>
         <input id="titulo">
@@ -196,13 +177,13 @@ button {
 
         <button onclick="postar()">Postar</button>
         <button onclick="fecharModal()">Cancelar</button>
-
     </div>
 </div>
 
 <script>
 let usuario = "";
 let admin = false;
+let abaAtual = "pergunta";
 
 /* LOGIN */
 function login() {
@@ -227,18 +208,33 @@ function login() {
     document.getElementById("loginScreen").style.display = "none";
     document.getElementById("app").style.display = "block";
 
-    carregarPosts();
+    carregarTudo();
 }
 
 /* ABAS */
 function trocar(tab, el) {
+    abaAtual = tab;
+
     document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
     document.getElementById(tab).classList.add("active");
 
     document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
     el.classList.add("active");
 
-    document.getElementById("fab").style.display = (tab === "pergunta") ? "block" : "none";
+    atualizarFAB();
+}
+
+/* BOTÃO + */
+function atualizarFAB() {
+    let fab = document.getElementById("fab");
+
+    if (abaAtual === "pergunta") {
+        fab.style.display = "block";
+    } else if (admin) {
+        fab.style.display = "block";
+    } else {
+        fab.style.display = "none";
+    }
 }
 
 /* MODAL */
@@ -260,14 +256,14 @@ function postar() {
 
     let nome = anon ? "Anônimo" : usuario;
 
-    let posts = JSON.parse(localStorage.getItem("posts") || "[]");
+    let posts = JSON.parse(localStorage.getItem(abaAtual) || "[]");
 
     posts.unshift({ nome, titulo, desc });
 
-    localStorage.setItem("posts", JSON.stringify(posts));
+    localStorage.setItem(abaAtual, JSON.stringify(posts));
 
     fecharModal();
-    carregarPosts();
+    carregarTudo();
 
     document.getElementById("titulo").value = "";
     document.getElementById("desc").value = "";
@@ -275,43 +271,53 @@ function postar() {
 }
 
 /* CARREGAR */
-function carregarPosts() {
-    let lista = document.getElementById("pergunta");
-    lista.innerHTML = "";
+function carregarTudo() {
+    ["pergunta","materia","dever"].forEach(aba => {
+        let lista = document.getElementById(aba);
+        lista.innerHTML = "";
 
-    let posts = JSON.parse(localStorage.getItem("posts") || "[]");
+        let posts = JSON.parse(localStorage.getItem(aba) || "[]");
 
-    posts.forEach((p, i) => {
-        let div = document.createElement("div");
-        div.className = "post";
-
-        div.innerHTML = `
-            <div style="font-size:13px;color:#555;">${p.nome}</div>
-            <div style="font-weight:bold;margin:5px 0;">${p.titulo}</div>
-            <div>${p.desc}</div>
-        `;
-
-        if (admin) {
-            let btn = document.createElement("button");
-            btn.innerText = "Excluir";
-            btn.style.marginTop = "10px";
-
-            btn.onclick = () => {
-                posts.splice(i, 1);
-                localStorage.setItem("posts", JSON.stringify(posts));
-                carregarPosts();
-            };
-
-            div.appendChild(btn);
+        if (posts.length === 0) {
+            lista.innerHTML = `<div class="empty">Sem nenhuma postagem</div>`;
+            return;
         }
 
-        lista.appendChild(div);
+        posts.forEach((p, i) => {
+            let div = document.createElement("div");
+            div.className = "post";
+
+            div.innerHTML = `
+                <div style="font-size:13px;color:#555;">${p.nome}</div>
+                <div style="font-weight:bold;margin:5px 0;">${p.titulo}</div>
+                <div>${p.desc}</div>
+            `;
+
+            if (admin && aba === "pergunta") {
+                let btn = document.createElement("button");
+                btn.innerText = "Excluir";
+
+                btn.onclick = () => {
+                    posts.splice(i, 1);
+                    localStorage.setItem(aba, JSON.stringify(posts));
+                    carregarTudo();
+                };
+
+                div.appendChild(btn);
+            }
+
+            lista.appendChild(div);
+        });
     });
+
+    atualizarFAB();
 }
 
-/* SINCRONIZAR ENTRE ABAS */
+/* SINCRONIZA */
 window.addEventListener("storage", (e) => {
-    if (e.key === "posts") carregarPosts();
+    if (["pergunta","materia","dever"].includes(e.key)) {
+        carregarTudo();
+    }
 });
 </script>
 
