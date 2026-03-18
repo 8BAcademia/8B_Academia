@@ -11,7 +11,7 @@ body {
     background: linear-gradient(135deg, #eaf4ff, #f7fbff);
 }
 
-/* LOGIN CARD */
+/* LOGIN */
 .login-container {
     height: 100vh;
     display: flex;
@@ -27,11 +27,6 @@ body {
     box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
 
-h2 {
-    margin-bottom: 20px;
-}
-
-/* INPUT GROUP */
 .input-group {
     margin-bottom: 15px;
 }
@@ -39,9 +34,8 @@ h2 {
 label {
     font-size: 13px;
     font-weight: 600;
-    display: block;
     margin-bottom: 5px;
-    color: #333;
+    display: block;
 }
 
 input {
@@ -49,16 +43,8 @@ input {
     padding: 8px;
     border-radius: 6px;
     border: 2px solid #4da6ff;
-    outline: none;
-    font-size: 14px;
-    transition: 0.2s;
 }
 
-input:focus {
-    border-color: #3399ff;
-}
-
-/* ERRO */
 input.error {
     border-color: red;
 }
@@ -66,31 +52,43 @@ input.error {
 .error-text {
     color: red;
     font-size: 12px;
-    margin-top: 5px;
 }
 
-/* BOTÃO */
+/* APP */
+.app {
+    display: none;
+    padding: 20px;
+}
+
+.nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
 button {
-    width: 100%;
     padding: 10px;
     background: #4da6ff;
-    color: white;
     border: none;
+    color: white;
     border-radius: 8px;
     cursor: pointer;
-    font-weight: bold;
-    transition: 0.2s;
 }
 
-button:hover {
-    background: #3399ff;
+.tab {
+    display: none;
+}
+
+.tab.active {
+    display: block;
 }
 </style>
 </head>
 
 <body>
 
-<div class="login-container">
+<!-- LOGIN -->
+<div id="loginScreen" class="login-container">
     <div class="login-box">
 
         <h2>Entrar</h2>
@@ -111,20 +109,44 @@ button:hover {
     </div>
 </div>
 
+<!-- APP -->
+<div id="app" class="app">
+
+    <div class="nav">
+        <button onclick="trocar('pergunta')">Perguntas</button>
+        <button onclick="trocar('materia')">Matéria</button>
+        <button onclick="trocar('dever')">Dever</button>
+    </div>
+
+    <div id="pergunta" class="tab active">Área de perguntas</div>
+    <div id="materia" class="tab">Área de matéria</div>
+    <div id="dever" class="tab">Área de dever</div>
+
+</div>
+
 <script>
 function login() {
-    let senha = document.getElementById("pass");
+    let senhaInput = document.getElementById("pass");
     let erro = document.getElementById("erro");
 
-    senha.classList.remove("error");
+    senhaInput.classList.remove("error");
     erro.innerText = "";
 
-    if (senha.value === "Turma8B" || senha.value === "8B_adm") {
-        alert("Login realizado (simulado)");
+    let senha = senhaInput.value;
+
+    if (senha === "Turma8B" || senha === "8B_adm") {
+        // TROCA DE TELA
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("app").style.display = "block";
     } else {
-        senha.classList.add("error");
+        senhaInput.classList.add("error");
         erro.innerText = "Senha incorreta, tente novamente";
     }
+}
+
+function trocar(tab) {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.getElementById(tab).classList.add("active");
 }
 </script>
 
