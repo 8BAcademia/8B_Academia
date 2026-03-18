@@ -7,197 +7,124 @@
 <style>
 body {
     margin: 0;
-    font-family: Arial;
-    background: #f5f9ff;
+    font-family: "Segoe UI", Arial;
+    background: linear-gradient(135deg, #eaf4ff, #f7fbff);
 }
 
-.container {
-    max-width: 800px;
-    margin: auto;
-    padding: 20px;
+/* LOGIN CARD */
+.login-container {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.login {
-    text-align: center;
-    margin-top: 100px;
+.login-box {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 320px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
 
-input, textarea {
+h2 {
+    margin-bottom: 20px;
+}
+
+/* INPUT GROUP */
+.input-group {
+    margin-bottom: 15px;
+}
+
+label {
+    font-size: 13px;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 6px;
+    border: 2px solid #4da6ff;
+    outline: none;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+input:focus {
+    border-color: #3399ff;
+}
+
+/* ERRO */
+input.error {
+    border-color: red;
+}
+
+.error-text {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* BOTÃO */
+button {
     width: 100%;
     padding: 10px;
-    margin: 8px 0;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-}
-
-button {
     background: #4da6ff;
     color: white;
     border: none;
-    padding: 10px;
     border-radius: 8px;
     cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
 }
 
 button:hover {
     background: #3399ff;
-}
-
-.error {
-    color: red;
-    font-size: 12px;
-}
-
-.nav {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.tab {
-    display: none;
-}
-
-.active {
-    display: block;
-}
-
-.post {
-    background: white;
-    padding: 10px;
-    border-radius: 10px;
-    margin: 10px 0;
 }
 </style>
 </head>
 
 <body>
 
-<div id="login" class="login">
-    <h2>Login</h2>
-    <input id="user" placeholder="Coloque seu nome de usuário aqui (favor colocar seu nome real)">
-    <input id="pass" type="password" placeholder="Digite sua senha">
-    <button onclick="login()">Entrar</button>
-    <div id="erro" class="error"></div>
-</div>
+<div class="login-container">
+    <div class="login-box">
 
-<div id="app" style="display:none" class="container">
+        <h2>Entrar</h2>
 
-    <div class="nav">
-        <button onclick="trocar('pergunta')">Perguntas</button>
-        <button onclick="trocar('materia')">Matéria</button>
-        <button onclick="trocar('dever')">Dever</button>
-    </div>
-
-    <!-- PERGUNTAS -->
-    <div id="pergunta" class="tab active">
-        <button onclick="mostrarCriar()">+ Criar postagem</button>
-
-        <div id="criar" style="display:none">
-            <input id="titulo" placeholder="Qual o título da postagem?">
-            <textarea id="desc" placeholder="Escreva sua dúvida aqui"></textarea>
-            <label>
-                <input type="checkbox" id="anon"> Postagem anônima?
-            </label>
-            <button onclick="postar()">Postar</button>
+        <div class="input-group">
+            <label>Nome de usuário</label>
+            <input id="user">
         </div>
 
-        <div id="lista"></div>
-    </div>
+        <div class="input-group">
+            <label>Senha</label>
+            <input id="pass" type="password">
+            <div id="erro" class="error-text"></div>
+        </div>
 
-    <!-- MATÉRIA -->
-    <div id="materia" class="tab">
-        <div id="admMateria"></div>
-        <div id="listaMateria"></div>
-    </div>
+        <button onclick="login()">Entrar</button>
 
-    <!-- DEVER -->
-    <div id="dever" class="tab">
-        <div id="admDever"></div>
-        <div id="listaDever"></div>
     </div>
-
 </div>
 
 <script>
-let usuario = "";
-let admin = false;
-
 function login() {
-    let u = document.getElementById("user").value;
-    let p = document.getElementById("pass").value;
+    let senha = document.getElementById("pass");
+    let erro = document.getElementById("erro");
 
-    if (p === "Turma8B") {
-        admin = false;
-    } else if (p === "8B_adm") {
-        admin = true;
+    senha.classList.remove("error");
+    erro.innerText = "";
+
+    if (senha.value === "Turma8B" || senha.value === "8B_adm") {
+        alert("Login realizado (simulado)");
     } else {
-        document.getElementById("erro").innerText = "Senha incorreta, tente novamente";
-        return;
+        senha.classList.add("error");
+        erro.innerText = "Senha incorreta, tente novamente";
     }
-
-    usuario = u;
-    document.getElementById("login").style.display = "none";
-    document.getElementById("app").style.display = "block";
-
-    if (admin) {
-        document.getElementById("admMateria").innerHTML = '<button onclick="criarMateria()">+ Criar conteúdo</button>';
-        document.getElementById("admDever").innerHTML = '<button onclick="criarDever()">+ Criar postagem</button>';
-    }
-}
-
-function trocar(tab) {
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    document.getElementById(tab).classList.add("active");
-}
-
-function mostrarCriar() {
-    let c = document.getElementById("criar");
-    c.style.display = c.style.display === "none" ? "block" : "none";
-}
-
-function postar() {
-    let titulo = document.getElementById("titulo").value;
-    let desc = document.getElementById("desc").value;
-    let anon = document.getElementById("anon").checked;
-
-    let nome = anon ? "Anônimo" : usuario;
-
-    let div = document.createElement("div");
-    div.className = "post";
-    div.innerHTML = `<b>${titulo}</b><br>${desc}<br><small>${nome}</small>`;
-
-    if (admin) {
-        let btn = document.createElement("button");
-        btn.innerText = "Excluir";
-        btn.onclick = () => div.remove();
-        div.appendChild(btn);
-    }
-
-    document.getElementById("lista").appendChild(div);
-}
-
-function criarMateria() {
-    let titulo = prompt("Título:");
-    let data = prompt("Data da prova:");
-    let desc = prompt("Coloque a matéria aqui:");
-
-    let div = document.createElement("div");
-    div.className = "post";
-    div.innerHTML = `<b>${titulo}</b><br>Prova: ${data}<br>${desc}`;
-
-    document.getElementById("listaMateria").appendChild(div);
-}
-
-function criarDever() {
-    let titulo = prompt("Título:");
-    let desc = prompt("Coloque os deveres aqui:");
-
-    let div = document.createElement("div");
-    div.className = "post";
-    div.innerHTML = `<b>${titulo}</b><br>${desc}`;
-
-    document.getElementById("listaDever").appendChild(div);
 }
 </script>
 
