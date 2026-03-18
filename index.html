@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Sistema Escolar</title>
+<title>Plataforma Academia</title>
 
 <style>
 body {
@@ -56,34 +56,54 @@ button {
 /* APP */
 .app { display: none; }
 
+/* NAVBAR BONITA */
 .nav {
-    background: white;
-    padding: 10px;
     display: flex;
-    gap: 10px;
+    justify-content: center;
+    gap: 20px;
+    background: white;
+    padding: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
-.nav-btn {
-    background: transparent;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
+.nav-item {
+    padding: 8px 16px;
+    border-radius: 8px;
     cursor: pointer;
+    font-weight: 600;
+    color: #555;
+    transition: 0.2s;
 }
 
-.nav-btn.active {
+.nav-item:hover {
+    background: #eaf4ff;
+}
+
+.nav-item.active {
     background: #4da6ff;
     color: white;
 }
 
+/* CONTEÚDO */
 .content {
     padding: 20px;
 }
 
-.tab { display: none; }
-.tab.active { display: block; }
+.tab {
+    display: none;
+    animation: fadeIn 0.2s;
+}
 
-/* POST */
+.tab.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {opacity:0}
+    to {opacity:1}
+}
+
+/* POSTS */
 .post {
     background: white;
     padding: 15px;
@@ -97,10 +117,10 @@ button {
     bottom: 20px;
     right: 20px;
     background: #4da6ff;
-    width: 50px;
-    height: 50px;
+    width: 55px;
+    height: 55px;
     border-radius: 50%;
-    font-size: 24px;
+    font-size: 26px;
 }
 
 /* MODAL */
@@ -116,7 +136,7 @@ button {
 .modal-box {
     background: white;
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 12px;
     width: 320px;
 }
 </style>
@@ -144,15 +164,15 @@ button {
 <div id="app" class="app">
 
     <div class="nav">
-        <button class="nav-btn active" onclick="trocar('pergunta', this)">Perguntas</button>
-        <button class="nav-btn" onclick="trocar('materia', this)">Matéria</button>
-        <button class="nav-btn" onclick="trocar('dever', this)">Dever</button>
+        <div class="nav-item active" onclick="trocar('pergunta', this)">Perguntas</div>
+        <div class="nav-item" onclick="trocar('materia', this)">Matéria</div>
+        <div class="nav-item" onclick="trocar('dever', this)">Dever</div>
     </div>
 
     <div class="content">
         <div id="pergunta" class="tab active"></div>
-        <div id="materia" class="tab">Somente administradores podem postar matérias</div>
-        <div id="dever" class="tab">Somente administradores podem postar deveres</div>
+        <div id="materia" class="tab">Área de matérias</div>
+        <div id="dever" class="tab">Área de deveres</div>
     </div>
 
     <button id="fab" class="fab" onclick="abrirModal()">+</button>
@@ -215,10 +235,9 @@ function trocar(tab, el) {
     document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
     document.getElementById(tab).classList.add("active");
 
-    document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
     el.classList.add("active");
 
-    // botão + só nas perguntas
     document.getElementById("fab").style.display = (tab === "pergunta") ? "block" : "none";
 }
 
@@ -290,7 +309,7 @@ function carregarPosts() {
     });
 }
 
-/* SINCRONIZA ENTRE ABAS */
+/* SINCRONIZAR ENTRE ABAS */
 window.addEventListener("storage", (e) => {
     if (e.key === "posts") carregarPosts();
 });
