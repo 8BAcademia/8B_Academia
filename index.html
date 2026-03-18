@@ -1,1 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Sistema Escolar</title>
 
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #f5f9ff;
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+}
+
+.login {
+    text-align: center;
+    margin-top: 100px;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+button {
+    background: #4da6ff;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #3399ff;
+}
+
+.error {
+    color: red;
+    font-size: 12px;
+}
+
+.nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tab {
+    display: none;
+}
+
+.active {
+    display: block;
+}
+
+.post {
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 10px 0;
+}
+</style>
+</head>
+
+<body>
+
+<div id="login" class="login">
+    <h2>Login</h2>
+    <input id="user" placeholder="Coloque seu nome de usuário aqui (favor colocar seu nome real)">
+    <input id="pass" type="password" placeholder="Digite sua senha">
+    <button onclick="login()">Entrar</button>
+    <div id="erro" class="error"></div>
+</div>
+
+<div id="app" style="display:none" class="container">
+
+    <div class="nav">
+        <button onclick="trocar('pergunta')">Perguntas</button>
+        <button onclick="trocar('materia')">Matéria</button>
+        <button onclick="trocar('dever')">Dever</button>
+    </div>
+
+    <!-- PERGUNTAS -->
+    <div id="pergunta" class="tab active">
+        <button onclick="mostrarCriar()">+ Criar postagem</button>
+
+        <div id="criar" style="display:none">
+            <input id="titulo" placeholder="Qual o título da postagem?">
+            <textarea id="desc" placeholder="Escreva sua dúvida aqui"></textarea>
+            <label>
+                <input type="checkbox" id="anon"> Postagem anônima?
+            </label>
+            <button onclick="postar()">Postar</button>
+        </div>
+
+        <div id="lista"></div>
+    </div>
+
+    <!-- MATÉRIA -->
+    <div id="materia" class="tab">
+        <div id="admMateria"></div>
+        <div id="listaMateria"></div>
+    </div>
+
+    <!-- DEVER -->
+    <div id="dever" class="tab">
+        <div id="admDever"></div>
+        <div id="listaDever"></div>
+    </div>
+
+</div>
+
+<script>
+let usuario = "";
+let admin = false;
+
+function login() {
+    let u = document.getElementById("user").value;
+    let p = document.getElementById("pass").value;
+
+    if (p === "Turma8B") {
+        admin = false;
+    } else if (p === "8B_adm") {
+        admin = true;
+    } else {
+        document.getElementById("erro").innerText = "Senha incorreta, tente novamente";
+        return;
+    }
+
+    usuario = u;
+    document.getElementById("login").style.display = "none";
+    document.getElementById("app").style.display = "block";
+
+    if (admin) {
+        document.getElementById("admMateria").innerHTML = '<button onclick="criarMateria()">+ Criar conteúdo</button>';
+        document.getElementById("admDever").innerHTML = '<button onclick="criarDever()">+ Criar postagem</button>';
+    }
+}
+
+function trocar(tab) {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.getElementById(tab).classList.add("active");
+}
+
+function mostrarCriar() {
+    let c = document.getElementById("criar");
+    c.style.display = c.style.display === "none" ? "block" : "none";
+}
+
+function postar() {
+    let titulo = document.getElementById("titulo").value;
+    let desc = document.getElementById("desc").value;
+    let anon = document.getElementById("anon").checked;
+
+    let nome = anon ? "Anônimo" : usuario;
+
+    let div = document.createElement("div");
+    div.className = "post";
+    div.innerHTML = `<b>${titulo}</b><br>${desc}<br><small>${nome}</small>`;
+
+    if (admin) {
+        let btn = document.createElement("button");
+        btn.innerText = "Excluir";
+        btn.onclick = () => div.remove();
+        div.appendChild(btn);
+    }
+
+    document.getElementById("lista").appendChild(div);
+}
+
+function criarMateria() {
+    let titulo = prompt("Título:");
+    let data = prompt("Data da prova:");
+    let desc = prompt("Coloque a matéria aqui:");
+
+    let div = document.createElement("div");
+    div.className = "post";
+    div.innerHTML = `<b>${titulo}</b><br>Prova: ${data}<br>${desc}`;
+
+    document.getElementById("listaMateria").appendChild(div);
+}
+
+function criarDever() {
+    let titulo = prompt("Título:");
+    let desc = prompt("Coloque os deveres aqui:");
+
+    let div = document.createElement("div");
+    div.className = "post";
+    div.innerHTML = `<b>${titulo}</b><br>${desc}`;
+
+    document.getElementById("listaDever").appendChild(div);
+}
+</script>
+
+</body>
+</html>
