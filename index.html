@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Sistema Escolar</title>
+<title>Site Escolar</title>
 
 <style>
 * { box-sizing: border-box; }
@@ -11,6 +11,12 @@ body {
     margin: 0;
     font-family: "Segoe UI";
     background: #f5f9ff;
+}
+
+/* ANIMAÇÕES */
+@keyframes fadeUp {
+    from {opacity:0; transform: translateY(10px);}
+    to {opacity:1; transform: translateY(0);}
 }
 
 /* LOGIN */
@@ -26,6 +32,7 @@ body {
     padding: 30px;
     border-radius: 14px;
     width: 320px;
+    animation: fadeUp 0.4s;
 }
 
 .label { font-size: 13px; margin-bottom: 4px; }
@@ -48,6 +55,7 @@ input.error { border-color: red; }
     padding: 8px 12px;
     border-radius: 8px;
     cursor: pointer;
+    height: 36px;
 }
 
 .btn:hover { background: #1e90ff; }
@@ -63,10 +71,7 @@ input.error { border-color: red; }
     padding: 10px 20px;
 }
 
-.nav {
-    display: flex;
-    gap: 10px;
-}
+.nav { display: flex; gap: 10px; }
 
 .nav-item {
     padding: 8px 14px;
@@ -80,9 +85,7 @@ input.error { border-color: red; }
 }
 
 /* CONTENT */
-.content {
-    padding: 80px 20px;
-}
+.content { padding: 80px 20px; }
 
 .tab { display: none; }
 .tab.active { display: block; }
@@ -93,6 +96,7 @@ input.error { border-color: red; }
     padding: 15px;
     border-radius: 10px;
     margin-bottom: 12px;
+    animation: fadeUp 0.3s;
 }
 
 .respostas {
@@ -106,14 +110,47 @@ input.error { border-color: red; }
     font-size: 14px;
 }
 
+/* RESPONDER */
 .responder-box {
     display: flex;
+    align-items: center;
     gap: 6px;
     margin-top: 8px;
 }
 
 .responder-box input {
     flex: 1;
+    height: 36px;
+}
+
+/* SWITCH PEQUENO */
+.switch-mini {
+    width: 32px;
+    height: 18px;
+    background: #ccc;
+    border-radius: 20px;
+    position: relative;
+    cursor: pointer;
+}
+
+.switch-mini::after {
+    content: "";
+    width: 14px;
+    height: 14px;
+    background: white;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+
+.switch-mini.active {
+    background: #4da6ff;
+}
+
+.switch-mini.active::after {
+    left: 16px;
 }
 
 /* BOTÃO CRIAR */
@@ -121,12 +158,11 @@ input.error { border-color: red; }
     position: fixed;
     bottom: 20px;
     right: 20px;
+    padding: 14px;
+    border-radius: 12px;
     background: #4da6ff;
     color: white;
     border: none;
-    padding: 14px;
-    border-radius: 12px;
-    cursor: pointer;
 }
 
 /* MODAL */
@@ -148,36 +184,11 @@ input.error { border-color: red; }
     padding: 20px;
     border-radius: 12px;
     width: 320px;
+    animation: fadeUp 0.3s;
 }
 
-/* SWITCH */
-.switch-btn {
-    width: 40px;
-    height: 22px;
-    background: #ccc;
-    border-radius: 20px;
-    position: relative;
-    cursor: pointer;
-}
-
-.switch-btn::after {
-    content: "";
-    width: 18px;
-    height: 18px;
-    background: white;
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    border-radius: 50%;
-    transition: 0.3s;
-}
-
-.switch-btn.active {
-    background: #4da6ff;
-}
-
-.switch-btn.active::after {
-    left: 20px;
+.modal-box button {
+    margin-top: 12px;
 }
 </style>
 </head>
@@ -188,7 +199,7 @@ input.error { border-color: red; }
     <div class="login-box">
         <h2>Entrar</h2>
 
-        <div class="label">Nome</div>
+        <div class="label">Nome (Favor colocar seu nome real)</div>
         <input id="user">
 
         <div class="label">Senha</div>
@@ -232,9 +243,9 @@ input.error { border-color: red; }
         <div class="label">Descrição</div>
         <textarea id="desc"></textarea>
 
-        <div style="display:flex;justify-content:space-between;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
             <span>Anônimo?</span>
-            <div id="anonBtn" class="switch-btn" onclick="toggleAnon()"></div>
+            <div id="anonBtn" class="switch-mini" onclick="toggleAnon()"></div>
         </div>
 
         <button class="btn" onclick="enviar()">Publicar</button>
@@ -247,7 +258,7 @@ let admin = false;
 let aba = "pergunta";
 let anon = false;
 
-/* AUTO LOGIN */
+/* LOGIN */
 window.onload = () => {
     let saved = JSON.parse(localStorage.getItem("login"));
     if(saved){
@@ -260,23 +271,21 @@ window.onload = () => {
 };
 
 function login(){
-    let senha = document.getElementById("pass").value;
+    let senha = pass.value;
 
     if(senha==="Turma8B") admin=false;
     else if(senha==="8B_adm") admin=true;
     else{
         erro.innerText="Senha incorreta";
-        document.getElementById("pass").classList.add("error");
+        pass.classList.add("error");
         return;
     }
 
-    usuario = document.getElementById("user").value || "Usuário";
-
+    usuario = user.value || "Usuário";
     localStorage.setItem("login", JSON.stringify({usuario,admin}));
 
     loginScreen.style.display="none";
     app.style.display="block";
-
     carregar();
 }
 
@@ -287,7 +296,6 @@ function logout(){
 
 function trocar(t, el){
     aba = t;
-
     document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
     document.getElementById(t).classList.add("active");
 
@@ -295,21 +303,19 @@ function trocar(t, el){
     el.classList.add("active");
 }
 
-/* SWITCH */
-function toggleAnon(){
-    anon = !anon;
-    document.getElementById("anonBtn").classList.toggle("active");
-}
-
 /* MODAL */
 function abrirModal(){
-    document.getElementById("modal").classList.add("active");
+    modal.classList.add("active");
 }
 
 function fecharFora(e){
-    if(e.target.id==="modal"){
-        document.getElementById("modal").classList.remove("active");
-    }
+    if(e.target.id==="modal") modal.classList.remove("active");
+}
+
+/* SWITCH */
+function toggleAnon(){
+    anon = !anon;
+    anonBtn.classList.toggle("active");
 }
 
 /* POST */
@@ -336,9 +342,9 @@ function enviar(){
     titulo.value="";
     desc.value="";
     anon=false;
-    document.getElementById("anonBtn").classList.remove("active");
+    anonBtn.classList.remove("active");
 
-    document.getElementById("modal").classList.remove("active");
+    modal.classList.remove("active");
     carregar();
 }
 
@@ -346,6 +352,7 @@ function enviar(){
 function responder(index){
     let input = document.getElementById("resp-"+index);
     let texto = input.value.trim();
+    let anonResp = document.getElementById("anonResp-"+index).classList.contains("active");
 
     if(!texto){
         alert("Escreva algo antes de continuar");
@@ -355,7 +362,7 @@ function responder(index){
     let posts = JSON.parse(localStorage.getItem(aba)||"[]");
 
     posts[index].respostas.push({
-        nome: usuario,
+        nome: anonResp ? "Anônimo" : usuario,
         texto
     });
 
@@ -372,19 +379,18 @@ function carregar(){
         let posts = JSON.parse(localStorage.getItem(a)||"[]");
 
         if(posts.length===0){
-            div.innerHTML=`<div class="empty">Sem nenhuma postagem</div>`;
+            div.innerHTML=`<div>Sem nenhuma postagem</div>`;
             return;
         }
 
         posts.forEach((p,i)=>{
-            let el = document.createElement("div");
-            el.className="post";
-
             let respostasHTML = "";
-
             p.respostas.forEach(r=>{
                 respostasHTML += `<div class="resposta"><b>${r.nome}:</b> ${r.texto}</div>`;
             });
+
+            let el = document.createElement("div");
+            el.className="post";
 
             el.innerHTML=`
                 <b>${p.nome}</b>
@@ -394,8 +400,9 @@ function carregar(){
                 <div class="respostas">${respostasHTML}</div>
 
                 <div class="responder-box">
-                    <input id="resp-${i}" placeholder="Escreva uma resposta...">
-                    <button class="btn" onclick="responder(${i})">Responder</button>
+                    <input id="resp-${i}" placeholder="Responder...">
+                    <div id="anonResp-${i}" class="switch-mini" onclick="this.classList.toggle('active')"></div>
+                    <button class="btn" onclick="responder(${i})">Enviar</button>
                 </div>
             `;
 
@@ -403,13 +410,11 @@ function carregar(){
                 let b = document.createElement("button");
                 b.className="btn";
                 b.innerText="Excluir";
-
                 b.onclick=()=>{
                     posts.splice(i,1);
                     localStorage.setItem(a, JSON.stringify(posts));
                     carregar();
                 };
-
                 el.appendChild(b);
             }
 
