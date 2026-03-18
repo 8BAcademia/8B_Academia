@@ -13,9 +13,9 @@ body {
     background: #f5f9ff;
 }
 
-/* ANIMAÇÃO */
+/* ANIMAÇÕES */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(15px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
@@ -39,7 +39,6 @@ body {
 .label {
     font-size: 13px;
     margin-bottom: 4px;
-    display: block;
 }
 
 input, textarea {
@@ -48,6 +47,16 @@ input, textarea {
     border: 2px solid #4da6ff;
     border-radius: 8px;
     margin-bottom: 12px;
+    transition: 0.2s;
+}
+
+textarea {
+    resize: none;
+    height: 80px;
+}
+
+input:focus, textarea:focus {
+    transform: scale(1.02);
 }
 
 input.error { border-color: red; }
@@ -91,6 +100,11 @@ input.error { border-color: red; }
     padding: 8px 16px;
     border-radius: 8px;
     cursor: pointer;
+    transition: 0.2s;
+}
+
+.nav-item:hover {
+    background: #e6f2ff;
 }
 
 .nav-item.active {
@@ -100,14 +114,78 @@ input.error { border-color: red; }
 
 .content { padding: 20px; }
 
-.tab { display: none; }
-.tab.active { display: block; }
+.tab {
+    display: none;
+}
+.tab.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
 
+/* POST */
 .post {
     background: white;
     padding: 15px;
     border-radius: 10px;
     margin-bottom: 12px;
+    animation: fadeIn 0.3s ease;
+}
+
+/* BOTÕES */
+.post-actions {
+    margin-top: 10px;
+}
+
+.btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn:hover { transform: scale(1.05); }
+
+.btn-red { background: #ff4d4d; color: white; }
+
+/* FAB */
+.fab {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #4da6ff;
+    color: white;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    font-size: 26px;
+    border: none;
+    cursor: pointer;
+    animation: fadeIn 0.4s ease;
+}
+
+/* MODAL */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-box {
+    background: white;
+    padding: 25px;
+    border-radius: 14px;
+    width: 340px;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
 }
 
 .empty {
@@ -124,11 +202,11 @@ input.error { border-color: red; }
     <div class="login-box">
         <h2>Entrar</h2>
 
-        <label class="label">Nome (favor colocar seu nome real)</label>
-        <input id="user" placeholder="Digite seu nome">
+        <label class="label">Nome (Favor colocar seu nome real)</label>
+        <input id="user">
 
         <label class="label">Senha</label>
-        <input id="pass" type="password" placeholder="Digite sua senha">
+        <input id="pass" type="password">
 
         <div id="erro" class="erro"></div>
 
@@ -139,6 +217,7 @@ input.error { border-color: red; }
 <div class="credito">Criado por: Hensel©</div>
 
 <div id="app" class="app">
+
     <div class="nav">
         <div class="nav-item active" onclick="trocar('pergunta', this)">Perguntas</div>
         <div class="nav-item" onclick="trocar('materia', this)">Matéria</div>
@@ -150,6 +229,24 @@ input.error { border-color: red; }
         <div id="materia" class="tab"></div>
         <div id="dever" class="tab"></div>
     </div>
+
+    <button id="fab" class="fab" onclick="abrirModal()">+</button>
+</div>
+
+<div id="modal" class="modal">
+    <div class="modal-box">
+        <h3>Criar postagem</h3>
+
+        <input id="titulo" placeholder="Título">
+        <textarea id="desc" placeholder="Descrição"></textarea>
+
+        <div id="erroPost" class="erro"></div>
+
+        <div class="modal-actions">
+            <button onclick="fecharModal()">Cancelar</button>
+            <button onclick="postar()">Postar</button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -158,24 +255,23 @@ let admin = false;
 let abaAtual = "pergunta";
 
 function login() {
-    let senha = document.getElementById("pass").value;
-    let erro = document.getElementById("erro");
-
+    let senha = pass.value;
     erro.innerText = "";
 
     if (senha === "Turma8B") admin = false;
     else if (senha === "8B_adm") admin = true;
     else {
-        document.getElementById("pass").classList.add("error");
+        pass.classList.add("error");
         erro.innerText = "Senha incorreta";
         return;
     }
 
-    usuario = document.getElementById("user").value || "Usuário";
+    usuario = user.value || "Usuário";
 
-    document.getElementById("loginScreen").style.display = "none";
-    document.getElementById("app").style.display = "block";
+    loginScreen.style.display = "none";
+    app.style.display = "block";
 
+    atualizarFAB();
     carregar();
 }
 
@@ -187,6 +283,43 @@ function trocar(tab, el) {
 
     document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
     el.classList.add("active");
+
+    atualizarFAB();
+}
+
+function atualizarFAB() {
+    if (abaAtual === "pergunta" || admin) {
+        fab.style.display = "block";
+    } else {
+        fab.style.display = "none";
+    }
+}
+
+function abrirModal() {
+    modal.style.display = "flex";
+}
+
+function fecharModal() {
+    modal.style.display = "none";
+}
+
+function postar() {
+    let titulo = document.getElementById("titulo").value.trim();
+    let desc = document.getElementById("desc").value.trim();
+
+    if (!titulo || !desc) {
+        erroPost.innerText = "Escreva algo antes de continuar";
+        return;
+    }
+
+    let posts = JSON.parse(localStorage.getItem(abaAtual) || "[]");
+
+    posts.unshift({ nome: usuario, titulo, desc });
+
+    localStorage.setItem(abaAtual, JSON.stringify(posts));
+
+    fecharModal();
+    carregar();
 }
 
 function carregar() {
@@ -201,7 +334,7 @@ function carregar() {
             return;
         }
 
-        posts.forEach(p => {
+        posts.forEach((p, i) => {
             let div = document.createElement("div");
             div.className = "post";
 
@@ -210,6 +343,24 @@ function carregar() {
                 <div>${p.titulo}</div>
                 <div>${p.desc}</div>
             `;
+
+            if (admin) {
+                let btn = document.createElement("button");
+                btn.innerText = "Excluir";
+                btn.className = "btn btn-red";
+
+                btn.onclick = () => {
+                    posts.splice(i,1);
+                    localStorage.setItem(aba, JSON.stringify(posts));
+                    carregar();
+                };
+
+                let actions = document.createElement("div");
+                actions.className = "post-actions";
+                actions.appendChild(btn);
+
+                div.appendChild(actions);
+            }
 
             lista.appendChild(div);
         });
