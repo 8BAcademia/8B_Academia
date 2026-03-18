@@ -19,6 +19,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    animation: fadeIn 0.5s ease;
 }
 
 .login-box {
@@ -26,63 +27,76 @@ body {
     padding: 30px;
     border-radius: 14px;
     width: 320px;
+    animation: slideUp 0.4s ease;
 }
 
-.label {
-    font-size: 13px;
-    margin-bottom: 4px;
-}
+/* INPUT */
+.label { font-size: 13px; margin-bottom: 4px; }
 
-input {
+input, textarea {
     width: 100%;
     padding: 10px;
     border: 2px solid #4da6ff;
     border-radius: 8px;
     margin-bottom: 12px;
+    transition: 0.2s;
+}
+
+input:focus, textarea:focus {
+    outline: none;
+    border-color: #1e90ff;
+    transform: scale(1.02);
 }
 
 input.error { border-color: red; }
 
-.btn-login {
-    width: 100%;
-    padding: 10px;
+/* BOTÕES */
+.btn {
     background: #4da6ff;
     color: white;
-    border-radius: 8px;
     border: none;
-    cursor: pointer;
-}
-
-/* APP */
-.app { display: none; }
-
-.topbar {
-    display: flex;
-    justify-content: flex-end;
     padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
 }
 
-.btn-logout {
-    background: #ff4d4d;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
+.btn:hover {
+    background: #1e90ff;
+    transform: translateY(-1px);
+}
+
+.btn:active {
+    transform: scale(0.96);
+}
+
+/* HEADER */
+.header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    animation: slideDown 0.3s;
 }
 
 .nav {
     display: flex;
-    justify-content: center;
-    gap: 15px;
-    background: white;
-    padding: 12px;
+    gap: 10px;
 }
 
 .nav-item {
-    padding: 8px 16px;
+    padding: 8px 14px;
     border-radius: 8px;
     cursor: pointer;
+    transition: 0.2s;
+}
+
+.nav-item:hover {
+    background: #e6f2ff;
 }
 
 .nav-item.active {
@@ -90,37 +104,124 @@ input.error { border-color: red; }
     color: white;
 }
 
-.content { padding: 20px; }
+/* CONTENT */
+.content {
+    padding: 80px 20px;
+}
 
-.tab { display: none; }
-.tab.active { display: block; }
+.tab {
+    display: none;
+    opacity: 0;
+    transform: translateY(10px);
+}
 
+.tab.active {
+    display: block;
+    animation: tabAnim 0.3s forwards;
+}
+
+/* POSTS */
 .post {
     background: white;
     padding: 15px;
     border-radius: 10px;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: postAnim 0.4s forwards;
 }
 
 .empty {
     text-align: center;
     color: #888;
-    margin-top: 40px;
 }
 
-/* FAB */
-.fab {
+/* BOTÃO CRIAR */
+.create-btn {
     position: fixed;
     bottom: 20px;
     right: 20px;
     background: #4da6ff;
     color: white;
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    font-size: 26px;
     border: none;
+    padding: 14px 18px;
+    border-radius: 12px;
     cursor: pointer;
+    transition: 0.2s;
+}
+
+.create-btn:hover {
+    transform: scale(1.1);
+}
+
+/* MODAL */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.active {
+    display: flex;
+    animation: fadeIn 0.2s;
+}
+
+.modal-box {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    width: 320px;
+    animation: modalAnim 0.3s;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ANIMAÇÕES */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes tabAnim {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes postAnim {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes modalAnim {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 </style>
 </head>
@@ -131,28 +232,28 @@ input.error { border-color: red; }
     <div class="login-box">
         <h2>Entrar</h2>
 
-        <label class="label">Nome (Favor colocar seu nome real)</label>
+        <div class="label">Nome (Favor colocar seu nome real)</div>
         <input id="user">
 
-        <label class="label">Senha</label>
+        <div class="label">Senha</div>
         <input id="pass" type="password">
 
         <div id="erro" style="color:red;"></div>
 
-        <button class="btn-login" onclick="login()">Entrar</button>
+        <button class="btn" onclick="login()">Entrar</button>
     </div>
 </div>
 
-<div id="app" class="app">
+<div id="app" style="display:none">
 
-    <div class="topbar">
-        <button class="btn-logout" onclick="logout()">Sair</button>
-    </div>
+    <div class="header">
+        <div class="nav">
+            <div class="nav-item active" onclick="trocar('pergunta', this)">Perguntas</div>
+            <div class="nav-item" onclick="trocar('materia', this)">Matéria</div>
+            <div class="nav-item" onclick="trocar('dever', this)">Dever</div>
+        </div>
 
-    <div class="nav">
-        <div class="nav-item active" onclick="trocar('pergunta', this)">Perguntas</div>
-        <div class="nav-item" onclick="trocar('materia', this)">Matéria</div>
-        <div class="nav-item" onclick="trocar('dever', this)">Dever</div>
+        <button class="btn" onclick="logout()">Sair</button>
     </div>
 
     <div class="content">
@@ -161,134 +262,161 @@ input.error { border-color: red; }
         <div id="dever" class="tab"></div>
     </div>
 
-    <button id="fab" class="fab" onclick="postar()">+</button>
+    <button class="create-btn" onclick="abrirModal()">+ Criar</button>
+</div>
+
+<div id="modal" class="modal" onclick="fecharFora(event)">
+    <div class="modal-box">
+        <h3>Criar postagem</h3>
+
+        <div class="label">Título</div>
+        <input id="titulo">
+
+        <div class="label">Descrição</div>
+        <textarea id="desc"></textarea>
+
+        <div class="row">
+            <span>Anônimo?</span>
+            <input type="checkbox" id="anon">
+        </div>
+
+        <button class="btn" onclick="enviar()">Publicar</button>
+    </div>
 </div>
 
 <script>
 let usuario = "";
 let admin = false;
-let abaAtual = "pergunta";
+let aba = "pergunta";
 
-/* AUTO LOGIN */
 window.onload = () => {
     let saved = JSON.parse(localStorage.getItem("login"));
-
-    if (saved) {
+    if(saved){
         usuario = saved.usuario;
         admin = saved.admin;
-
-        loginScreen.style.display = "none";
-        app.style.display = "block";
-
+        loginScreen.style.display="none";
+        app.style.display="block";
         carregar();
     }
 };
 
-function login() {
+function login(){
     let senha = pass.value;
-    erro.innerText = "";
 
-    if (senha === "Turma8B") admin = false;
-    else if (senha === "8B_adm") admin = true;
-    else {
+    if(senha==="Turma8B") admin=false;
+    else if(senha==="8B_adm") admin=true;
+    else{
+        erro.innerText="Senha incorreta";
         pass.classList.add("error");
-        erro.innerText = "Senha incorreta";
         return;
     }
 
     usuario = user.value || "Usuário";
 
-    localStorage.setItem("login", JSON.stringify({
-        usuario,
-        admin
-    }));
+    localStorage.setItem("login", JSON.stringify({usuario,admin}));
 
-    loginScreen.style.display = "none";
-    app.style.display = "block";
+    loginScreen.style.display="none";
+    app.style.display="block";
 
     carregar();
 }
 
-function logout() {
+function logout(){
     localStorage.removeItem("login");
     location.reload();
 }
 
-function trocar(tab, el) {
-    abaAtual = tab;
+function trocar(t, el){
+    aba = t;
 
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    document.getElementById(tab).classList.add("active");
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    document.getElementById(t).classList.add("active");
 
-    document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+    document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
     el.classList.add("active");
 }
 
-function postar() {
-    let titulo = prompt("Título:");
-    let desc = prompt("Descrição:");
+function abrirModal(){
+    modal.classList.add("active");
+}
 
-    if (!titulo || !desc || !titulo.trim() || !desc.trim()) {
+function fecharFora(e){
+    if(e.target.id==="modal"){
+        modal.classList.remove("active");
+    }
+}
+
+function enviar(){
+    let t = titulo.value.trim();
+    let d = desc.value.trim();
+
+    if(!t || !d){
         alert("Escreva algo antes de continuar");
         return;
     }
 
-    let posts = JSON.parse(localStorage.getItem(abaAtual) || "[]");
+    let posts = JSON.parse(localStorage.getItem(aba)||"[]");
 
     posts.unshift({
-        nome: usuario,
-        titulo,
-        desc
+        nome: anon.checked ? "Anônimo" : usuario,
+        titulo: t,
+        desc: d
     });
 
-    localStorage.setItem(abaAtual, JSON.stringify(posts));
+    localStorage.setItem(aba, JSON.stringify(posts));
+
+    titulo.value="";
+    desc.value="";
+    anon.checked=false;
+
+    modal.classList.remove("active");
     carregar();
 }
 
-function carregar() {
-    ["pergunta","materia","dever"].forEach(aba => {
-        let lista = document.getElementById(aba);
-        lista.innerHTML = "";
+function carregar(){
+    ["pergunta","materia","dever"].forEach(a=>{
+        let div = document.getElementById(a);
+        div.innerHTML="";
 
-        let posts = JSON.parse(localStorage.getItem(aba) || "[]");
+        let posts = JSON.parse(localStorage.getItem(a)||"[]");
 
-        if (posts.length === 0) {
-            lista.innerHTML = `<div class="empty">Sem nenhuma postagem</div>`;
+        if(posts.length===0){
+            div.innerHTML=`<div class="empty">Sem nenhuma postagem</div>`;
             return;
         }
 
-        posts.forEach((p, i) => {
-            let div = document.createElement("div");
-            div.className = "post";
+        posts.forEach((p,i)=>{
+            let el = document.createElement("div");
+            el.className="post";
 
-            div.innerHTML = `
+            el.style.animationDelay = (i * 0.05) + "s";
+
+            el.innerHTML=`
                 <b>${p.nome}</b>
                 <div>${p.titulo}</div>
                 <div>${p.desc}</div>
             `;
 
-            if (admin) {
-                let btn = document.createElement("button");
-                btn.innerText = "Excluir";
+            if(admin){
+                let b = document.createElement("button");
+                b.className="btn";
+                b.innerText="Excluir";
 
-                btn.onclick = () => {
+                b.onclick=()=>{
                     posts.splice(i,1);
-                    localStorage.setItem(aba, JSON.stringify(posts));
+                    localStorage.setItem(a, JSON.stringify(posts));
                     carregar();
                 };
 
-                div.appendChild(btn);
+                el.appendChild(b);
             }
 
-            lista.appendChild(div);
+            div.appendChild(el);
         });
     });
 }
 
-/* SINCRONIZA ENTRE ABAS */
-window.addEventListener("storage", () => {
-    carregar();
-});
+window.addEventListener("storage", carregar);
 </script>
 
 </body>
