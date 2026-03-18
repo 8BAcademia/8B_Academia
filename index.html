@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -45,7 +45,6 @@ input, textarea {
     margin-bottom: 12px;
 }
 
-/* 🔥 ÚNICA ALTERAÇÃO */
 textarea {
     resize: none;
 }
@@ -195,13 +194,17 @@ input.error { border-color: red; }
 .modal-box button {
     margin-top: 12px;
 }
+
+/* MENSAGENS DE ERRO */
+.msg-erro {
+    color: red;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
 </style>
 </head>
 
 <body>
-
-<!-- RESTO DO SCRIPT INALTERADO -->
-<!-- (mantive exatamente igual ao seu, sem mexer em absolutamente nada) -->
 
 <div id="loginScreen" class="login-container">
     <div class="login-box">
@@ -209,11 +212,12 @@ input.error { border-color: red; }
 
         <div class="label">Nome (Favor colocar seu nome real)</div>
         <input id="user">
+        <div id="userErro" class="msg-erro"></div>
 
         <div class="label">Senha</div>
         <input id="pass" type="password">
 
-        <div id="erro" style="color:red;"></div>
+        <div id="erro" class="msg-erro"></div>
 
         <button class="btn" onclick="login()">Entrar</button>
     </div>
@@ -228,7 +232,10 @@ input.error { border-color: red; }
             <div class="nav-item" onclick="trocar('dever', this)">Dever</div>
         </div>
 
-        <button class="btn" onclick="logout()">Sair</button>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <span id="adminLabel" style="color:black; font-weight:bold; display:none;">ADMIN</span>
+            <button class="btn" onclick="logout()">Sair</button>
+        </div>
     </div>
 
     <div class="content">
@@ -246,9 +253,11 @@ input.error { border-color: red; }
 
         <div class="label">Título</div>
         <input id="titulo">
+        <div id="tituloErro" class="msg-erro"></div>
 
         <div class="label">Descrição</div>
         <textarea id="desc"></textarea>
+        <div id="descErro" class="msg-erro"></div>
 
         <div style="display:flex;justify-content:space-between;align-items:center;">
             <span>Anônimo?</span>
@@ -260,7 +269,6 @@ input.error { border-color: red; }
 </div>
 
 <script>
-/* JS INALTERADO */
 let usuario = "";
 let admin = false;
 let aba = "pergunta";
@@ -271,6 +279,11 @@ window.onload = () => {
     if(saved){
         usuario = saved.usuario;
         admin = saved.admin;
+
+        if(admin){
+            document.getElementById("adminLabel").style.display = "inline";
+        }
+
         loginScreen.style.display="none";
         app.style.display="block";
         carregar();
@@ -278,7 +291,18 @@ window.onload = () => {
 };
 
 function login(){
+    let nome = user.value.trim();
     let senha = pass.value;
+
+    user.classList.remove("error");
+    userErro.innerText="";
+    erro.innerText="";
+
+    if(!nome){
+        userErro.innerText="Insira um nome de usuário válido";
+        user.classList.add("error");
+        return;
+    }
 
     if(senha==="Turma8B") admin=false;
     else if(senha==="8B_adm") admin=true;
@@ -288,8 +312,12 @@ function login(){
         return;
     }
 
-    usuario = user.value || "Usuário";
+    usuario = nome;
     localStorage.setItem("login", JSON.stringify({usuario,admin}));
+
+    if(admin){
+        document.getElementById("adminLabel").style.display = "inline";
+    }
 
     loginScreen.style.display="none";
     app.style.display="block";
@@ -310,7 +338,13 @@ function trocar(t, el){
     el.classList.add("active");
 }
 
-function abrirModal(){ modal.classList.add("active"); }
+function abrirModal(){ 
+    tituloErro.innerText="";
+    descErro.innerText="";
+    titulo.classList.remove("error");
+    desc.classList.remove("error");
+    modal.classList.add("active"); 
+}
 
 function fecharFora(e){
     if(e.target.id==="modal") modal.classList.remove("active");
@@ -325,8 +359,20 @@ function enviar(){
     let t = titulo.value.trim();
     let d = desc.value.trim();
 
+    tituloErro.innerText="";
+    descErro.innerText="";
+    titulo.classList.remove("error");
+    desc.classList.remove("error");
+
     if(!t || !d){
-        alert("Escreva algo antes de continuar");
+        if(!t){
+            tituloErro.innerText="Insira um título";
+            titulo.classList.add("error");
+        }
+        if(!d){
+            descErro.innerText="Insira uma descrição";
+            desc.classList.add("error");
+        }
         return;
     }
 
