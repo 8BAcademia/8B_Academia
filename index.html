@@ -40,26 +40,31 @@ input, textarea {
     margin-bottom: 10px;
 }
 
+/* ERRO */
 input.error {
     border-color: red;
 }
 
+.erro {
+    color: red;
+    font-size: 13px;
+    margin-bottom: 10px;
+}
+
+/* BOTÃO */
 button {
-    background: #4da6ff;
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 8px;
     cursor: pointer;
+    border: none;
 }
 
 /* APP */
 .app { display: none; }
 
+/* NAV */
 .nav {
     display: flex;
     justify-content: center;
-    gap: 20px;
+    gap: 15px;
     background: white;
     padding: 12px;
 }
@@ -69,6 +74,11 @@ button {
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
+    transition: 0.2s;
+}
+
+.nav-item:hover {
+    background: #e6f2ff;
 }
 
 .nav-item.active {
@@ -76,6 +86,7 @@ button {
     color: white;
 }
 
+/* CONTEÚDO */
 .content {
     padding: 20px;
 }
@@ -83,17 +94,20 @@ button {
 .tab { display: none; }
 .tab.active { display: block; }
 
-/* POSTS */
+/* POST */
 .post {
     background: white;
     padding: 15px;
     border-radius: 10px;
     margin-bottom: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
 }
 
+/* VAZIO */
 .empty {
     text-align: center;
     color: #777;
+    margin-top: 40px;
 }
 
 /* BOTÃO + */
@@ -102,6 +116,7 @@ button {
     bottom: 20px;
     right: 20px;
     background: #4da6ff;
+    color: white;
     width: 55px;
     height: 55px;
     border-radius: 50%;
@@ -120,9 +135,105 @@ button {
 
 .modal-box {
     background: white;
-    padding: 20px;
-    border-radius: 12px;
-    width: 320px;
+    padding: 25px;
+    border-radius: 14px;
+    width: 340px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    animation: aparecer 0.2s ease;
+}
+
+@keyframes aparecer {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 4px;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #4da6ff;
+    border-radius: 8px;
+}
+
+textarea {
+    resize: none;
+    height: 90px;
+}
+
+/* SWITCH */
+.switch-area {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.switch {
+    position: relative;
+    width: 40px;
+    height: 22px;
+}
+
+.switch input {
+    display: none;
+}
+
+.slider {
+    position: absolute;
+    background: #ccc;
+    border-radius: 20px;
+    inset: 0;
+    transition: 0.3s;
+}
+
+.slider::before {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: white;
+    border-radius: 50%;
+    top: 3px;
+    left: 3px;
+    transition: 0.3s;
+}
+
+.switch input:checked + .slider {
+    background: #4da6ff;
+}
+
+.switch input:checked + .slider::before {
+    transform: translateX(18px);
+}
+
+/* BOTÕES MODAL */
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn-primary {
+    background: #4da6ff;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 8px;
+}
+
+.btn-secondary {
+    background: #ddd;
+    padding: 8px 14px;
+    border-radius: 8px;
 }
 </style>
 </head>
@@ -138,7 +249,7 @@ button {
 
         <label>Senha</label>
         <input id="pass" type="password">
-        <div id="erro" style="color:red"></div>
+        <div id="erro" class="erro"></div>
 
         <button onclick="login()">Entrar</button>
     </div>
@@ -163,20 +274,32 @@ button {
 
 <div id="modal" class="modal">
     <div class="modal-box">
-        <h3 id="modalTitle">Criar postagem</h3>
 
-        <label>Título</label>
-        <input id="titulo">
+        <h2>Criar postagem</h2>
 
-        <label>Descrição</label>
-        <textarea id="desc"></textarea>
+        <div class="form-group">
+            <label>Título</label>
+            <input id="titulo" placeholder="Qual o título da postagem?">
+        </div>
 
-        <label>
-            <input type="checkbox" id="anon"> Postagem anônima
-        </label>
+        <div class="form-group">
+            <label>Descrição</label>
+            <textarea id="desc" placeholder="Escreva sua dúvida aqui"></textarea>
+        </div>
 
-        <button onclick="postar()">Postar</button>
-        <button onclick="fecharModal()">Cancelar</button>
+        <div class="switch-area">
+            <span>Postagem anônima</span>
+            <label class="switch">
+                <input type="checkbox" id="anon">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="fecharModal()">Cancelar</button>
+            <button class="btn-primary" onclick="postar()">Postar</button>
+        </div>
+
     </div>
 </div>
 
@@ -185,7 +308,6 @@ let usuario = "";
 let admin = false;
 let abaAtual = "pergunta";
 
-/* LOGIN */
 function login() {
     let senha = document.getElementById("pass");
     let erro = document.getElementById("erro");
@@ -211,7 +333,6 @@ function login() {
     carregarTudo();
 }
 
-/* ABAS */
 function trocar(tab, el) {
     abaAtual = tab;
 
@@ -224,7 +345,6 @@ function trocar(tab, el) {
     atualizarFAB();
 }
 
-/* BOTÃO + */
 function atualizarFAB() {
     let fab = document.getElementById("fab");
 
@@ -237,7 +357,6 @@ function atualizarFAB() {
     }
 }
 
-/* MODAL */
 function abrirModal() {
     document.getElementById("modal").style.display = "flex";
 }
@@ -246,7 +365,6 @@ function fecharModal() {
     document.getElementById("modal").style.display = "none";
 }
 
-/* POSTAR */
 function postar() {
     let titulo = document.getElementById("titulo").value;
     let desc = document.getElementById("desc").value;
@@ -270,7 +388,6 @@ function postar() {
     document.getElementById("anon").checked = false;
 }
 
-/* CARREGAR */
 function carregarTudo() {
     ["pergunta","materia","dever"].forEach(aba => {
         let lista = document.getElementById(aba);
@@ -313,11 +430,8 @@ function carregarTudo() {
     atualizarFAB();
 }
 
-/* SINCRONIZA */
-window.addEventListener("storage", (e) => {
-    if (["pergunta","materia","dever"].includes(e.key)) {
-        carregarTudo();
-    }
+window.addEventListener("storage", () => {
+    carregarTudo();
 });
 </script>
 
