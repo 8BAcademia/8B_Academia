@@ -36,33 +36,18 @@ body {
     animation: fadeIn 0.4s ease;
 }
 
-/* LABEL */
 .label {
     font-size: 13px;
     margin-bottom: 4px;
-    color: #333;
     display: block;
 }
 
-/* INPUT */
 input, textarea {
     width: 100%;
     padding: 10px;
     border: 2px solid #4da6ff;
     border-radius: 8px;
     margin-bottom: 12px;
-    font-size: 14px;
-    transition: 0.2s;
-}
-
-textarea {
-    resize: none;
-    height: 80px;
-}
-
-input:focus, textarea:focus {
-    border-color: #1e90ff;
-    transform: scale(1.02);
 }
 
 input.error { border-color: red; }
@@ -72,23 +57,14 @@ input.error { border-color: red; }
     font-size: 13px;
 }
 
-/* BOTÕES */
-button {
-    cursor: pointer;
-    border: none;
-    transition: 0.2s;
-}
-
-button:hover { transform: scale(1.05); }
-button:active { transform: scale(0.95); }
-
 .btn-login {
     width: 100%;
     padding: 10px;
     background: #4da6ff;
     color: white;
     border-radius: 8px;
-    font-weight: bold;
+    border: none;
+    cursor: pointer;
 }
 
 /* CRÉDITO */
@@ -98,7 +74,6 @@ button:active { transform: scale(0.95); }
     right: 12px;
     font-size: 11px;
     color: #888;
-    opacity: 0.7;
 }
 
 /* APP */
@@ -125,10 +100,7 @@ button:active { transform: scale(0.95); }
 
 .content { padding: 20px; }
 
-.tab {
-    display: none;
-    animation: fadeIn 0.3s ease;
-}
+.tab { display: none; }
 .tab.active { display: block; }
 
 .post {
@@ -136,129 +108,6 @@ button:active { transform: scale(0.95); }
     padding: 15px;
     border-radius: 10px;
     margin-bottom: 12px;
-    animation: fadeIn 0.3s ease;
-}
-
-.post-actions {
-    margin-top: 10px;
-    display: flex;
-    gap: 10px;
-}
-
-.btn {
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-size: 12px;
-}
-
-.btn-blue { background: #4da6ff; color: white; }
-.btn-gray { background: #eee; }
-.btn-red { background: #ff4d4d; color: white; }
-
-.respostas {
-    margin-top: 10px;
-    border-top: 1px solid #ddd;
-    padding-top: 10px;
-}
-
-.resposta {
-    font-size: 13px;
-    margin-bottom: 5px;
-}
-
-.responder-area {
-    margin-top: 10px;
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
-.responder-area input {
-    flex: 0.75;
-    height: 32px;
-    margin: 0;
-}
-
-.responder-area button {
-    height: 32px;
-    padding: 0 12px;
-}
-
-.switch-area {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 10px 0;
-}
-
-.switch {
-    position: relative;
-    width: 42px;
-    height: 22px;
-}
-
-.switch input { display: none; }
-
-.slider {
-    position: absolute;
-    inset: 0;
-    background: #ccc;
-    border-radius: 20px;
-    transition: 0.3s;
-}
-
-.slider::before {
-    content: "";
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    background: white;
-    border-radius: 50%;
-    top: 3px;
-    left: 3px;
-    transition: 0.3s;
-}
-
-.switch input:checked + .slider {
-    background: #4da6ff;
-}
-
-.switch input:checked + .slider::before {
-    transform: translateX(20px);
-}
-
-.fab {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: #4da6ff;
-    color: white;
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
-    font-size: 26px;
-}
-
-.modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.3);
-    display: none;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal-box {
-    background: white;
-    padding: 25px;
-    border-radius: 14px;
-    width: 340px;
-}
-
-.modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
 }
 
 .empty {
@@ -275,7 +124,7 @@ button:active { transform: scale(0.95); }
     <div class="login-box">
         <h2>Entrar</h2>
 
-        <label class="label">Nome (favor coloque seu nome real)</label>
+        <label class="label">Nome (favor colocar seu nome real)</label>
         <input id="user" placeholder="Digite seu nome">
 
         <label class="label">Senha</label>
@@ -289,23 +138,82 @@ button:active { transform: scale(0.95); }
 
 <div class="credito">Criado por: Hensel©</div>
 
-<!-- resto do sistema permanece igual -->
+<div id="app" class="app">
+    <div class="nav">
+        <div class="nav-item active" onclick="trocar('pergunta', this)">Perguntas</div>
+        <div class="nav-item" onclick="trocar('materia', this)">Matéria</div>
+        <div class="nav-item" onclick="trocar('dever', this)">Dever</div>
+    </div>
+
+    <div class="content">
+        <div id="pergunta" class="tab active"></div>
+        <div id="materia" class="tab"></div>
+        <div id="dever" class="tab"></div>
+    </div>
+</div>
+
 <script>
+let usuario = "";
+let admin = false;
+let abaAtual = "pergunta";
+
 function login() {
-    let senha = pass.value;
+    let senha = document.getElementById("pass").value;
+    let erro = document.getElementById("erro");
+
     erro.innerText = "";
 
     if (senha === "Turma8B") admin = false;
     else if (senha === "8B_adm") admin = true;
     else {
-        pass.classList.add("error");
+        document.getElementById("pass").classList.add("error");
         erro.innerText = "Senha incorreta";
         return;
     }
 
-    usuario = user.value || "Usuário";
-    loginScreen.style.display = "none";
-    app.style.display = "block";
+    usuario = document.getElementById("user").value || "Usuário";
+
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("app").style.display = "block";
+
+    carregar();
+}
+
+function trocar(tab, el) {
+    abaAtual = tab;
+
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.getElementById(tab).classList.add("active");
+
+    document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+    el.classList.add("active");
+}
+
+function carregar() {
+    ["pergunta","materia","dever"].forEach(aba => {
+        let lista = document.getElementById(aba);
+        lista.innerHTML = "";
+
+        let posts = JSON.parse(localStorage.getItem(aba) || "[]");
+
+        if (posts.length === 0) {
+            lista.innerHTML = `<div class="empty">Sem nenhuma postagem</div>`;
+            return;
+        }
+
+        posts.forEach(p => {
+            let div = document.createElement("div");
+            div.className = "post";
+
+            div.innerHTML = `
+                <div><b>${p.nome}</b></div>
+                <div>${p.titulo}</div>
+                <div>${p.desc}</div>
+            `;
+
+            lista.appendChild(div);
+        });
+    });
 }
 </script>
 
