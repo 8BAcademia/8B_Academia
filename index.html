@@ -13,12 +13,6 @@ body {
     background: #f5f9ff;
 }
 
-/* ANIMAÇÕES */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
 /* LOGIN */
 .login-container {
     height: 100vh;
@@ -32,8 +26,6 @@ body {
     padding: 30px;
     border-radius: 14px;
     width: 320px;
-    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-    animation: fadeIn 0.4s ease;
 }
 
 .label {
@@ -41,30 +33,15 @@ body {
     margin-bottom: 4px;
 }
 
-input, textarea {
+input {
     width: 100%;
     padding: 10px;
     border: 2px solid #4da6ff;
     border-radius: 8px;
     margin-bottom: 12px;
-    transition: 0.2s;
-}
-
-textarea {
-    resize: none;
-    height: 80px;
-}
-
-input:focus, textarea:focus {
-    transform: scale(1.02);
 }
 
 input.error { border-color: red; }
-
-.erro {
-    color: red;
-    font-size: 13px;
-}
 
 .btn-login {
     width: 100%;
@@ -76,17 +53,23 @@ input.error { border-color: red; }
     cursor: pointer;
 }
 
-/* CRÉDITO */
-.credito {
-    position: fixed;
-    bottom: 10px;
-    right: 12px;
-    font-size: 11px;
-    color: #888;
-}
-
 /* APP */
 .app { display: none; }
+
+.topbar {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+}
+
+.btn-logout {
+    background: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
 
 .nav {
     display: flex;
@@ -100,11 +83,6 @@ input.error { border-color: red; }
     padding: 8px 16px;
     border-radius: 8px;
     cursor: pointer;
-    transition: 0.2s;
-}
-
-.nav-item:hover {
-    background: #e6f2ff;
 }
 
 .nav-item.active {
@@ -114,39 +92,21 @@ input.error { border-color: red; }
 
 .content { padding: 20px; }
 
-.tab {
-    display: none;
-}
-.tab.active {
-    display: block;
-    animation: fadeIn 0.3s ease;
-}
+.tab { display: none; }
+.tab.active { display: block; }
 
-/* POST */
 .post {
     background: white;
     padding: 15px;
     border-radius: 10px;
     margin-bottom: 12px;
-    animation: fadeIn 0.3s ease;
 }
 
-/* BOTÕES */
-.post-actions {
-    margin-top: 10px;
+.empty {
+    text-align: center;
+    color: #888;
+    margin-top: 40px;
 }
-
-.btn {
-    padding: 6px 12px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.btn:hover { transform: scale(1.05); }
-
-.btn-red { background: #ff4d4d; color: white; }
 
 /* FAB */
 .fab {
@@ -161,37 +121,6 @@ input.error { border-color: red; }
     font-size: 26px;
     border: none;
     cursor: pointer;
-    animation: fadeIn 0.4s ease;
-}
-
-/* MODAL */
-.modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.3);
-    display: none;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal-box {
-    background: white;
-    padding: 25px;
-    border-radius: 14px;
-    width: 340px;
-    animation: fadeIn 0.3s ease;
-}
-
-.modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-
-.empty {
-    text-align: center;
-    color: #888;
-    margin-top: 40px;
 }
 </style>
 </head>
@@ -202,21 +131,23 @@ input.error { border-color: red; }
     <div class="login-box">
         <h2>Entrar</h2>
 
-        <label class="label">Nome (Favor colocar seu nome real)</label>
+        <label class="label">Nome</label>
         <input id="user">
 
         <label class="label">Senha</label>
         <input id="pass" type="password">
 
-        <div id="erro" class="erro"></div>
+        <div id="erro" style="color:red;"></div>
 
         <button class="btn-login" onclick="login()">Entrar</button>
     </div>
 </div>
 
-<div class="credito">Criado por: Hensel©</div>
-
 <div id="app" class="app">
+
+    <div class="topbar">
+        <button class="btn-logout" onclick="logout()">Sair</button>
+    </div>
 
     <div class="nav">
         <div class="nav-item active" onclick="trocar('pergunta', this)">Perguntas</div>
@@ -230,29 +161,28 @@ input.error { border-color: red; }
         <div id="dever" class="tab"></div>
     </div>
 
-    <button id="fab" class="fab" onclick="abrirModal()">+</button>
-</div>
-
-<div id="modal" class="modal">
-    <div class="modal-box">
-        <h3>Criar postagem</h3>
-
-        <input id="titulo" placeholder="Título">
-        <textarea id="desc" placeholder="Descrição"></textarea>
-
-        <div id="erroPost" class="erro"></div>
-
-        <div class="modal-actions">
-            <button onclick="fecharModal()">Cancelar</button>
-            <button onclick="postar()">Postar</button>
-        </div>
-    </div>
+    <button id="fab" class="fab" onclick="postar()">+</button>
 </div>
 
 <script>
 let usuario = "";
 let admin = false;
 let abaAtual = "pergunta";
+
+/* AUTO LOGIN */
+window.onload = () => {
+    let saved = JSON.parse(localStorage.getItem("login"));
+
+    if (saved) {
+        usuario = saved.usuario;
+        admin = saved.admin;
+
+        loginScreen.style.display = "none";
+        app.style.display = "block";
+
+        carregar();
+    }
+};
 
 function login() {
     let senha = pass.value;
@@ -268,11 +198,20 @@ function login() {
 
     usuario = user.value || "Usuário";
 
+    localStorage.setItem("login", JSON.stringify({
+        usuario,
+        admin
+    }));
+
     loginScreen.style.display = "none";
     app.style.display = "block";
 
-    atualizarFAB();
     carregar();
+}
+
+function logout() {
+    localStorage.removeItem("login");
+    location.reload();
 }
 
 function trocar(tab, el) {
@@ -283,42 +222,26 @@ function trocar(tab, el) {
 
     document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
     el.classList.add("active");
-
-    atualizarFAB();
-}
-
-function atualizarFAB() {
-    if (abaAtual === "pergunta" || admin) {
-        fab.style.display = "block";
-    } else {
-        fab.style.display = "none";
-    }
-}
-
-function abrirModal() {
-    modal.style.display = "flex";
-}
-
-function fecharModal() {
-    modal.style.display = "none";
 }
 
 function postar() {
-    let titulo = document.getElementById("titulo").value.trim();
-    let desc = document.getElementById("desc").value.trim();
+    let titulo = prompt("Título:");
+    let desc = prompt("Descrição:");
 
-    if (!titulo || !desc) {
-        erroPost.innerText = "Escreva algo antes de continuar";
+    if (!titulo || !desc || !titulo.trim() || !desc.trim()) {
+        alert("Escreva algo antes de continuar");
         return;
     }
 
     let posts = JSON.parse(localStorage.getItem(abaAtual) || "[]");
 
-    posts.unshift({ nome: usuario, titulo, desc });
+    posts.unshift({
+        nome: usuario,
+        titulo,
+        desc
+    });
 
     localStorage.setItem(abaAtual, JSON.stringify(posts));
-
-    fecharModal();
     carregar();
 }
 
@@ -339,7 +262,7 @@ function carregar() {
             div.className = "post";
 
             div.innerHTML = `
-                <div><b>${p.nome}</b></div>
+                <b>${p.nome}</b>
                 <div>${p.titulo}</div>
                 <div>${p.desc}</div>
             `;
@@ -347,7 +270,6 @@ function carregar() {
             if (admin) {
                 let btn = document.createElement("button");
                 btn.innerText = "Excluir";
-                btn.className = "btn btn-red";
 
                 btn.onclick = () => {
                     posts.splice(i,1);
@@ -355,17 +277,18 @@ function carregar() {
                     carregar();
                 };
 
-                let actions = document.createElement("div");
-                actions.className = "post-actions";
-                actions.appendChild(btn);
-
-                div.appendChild(actions);
+                div.appendChild(btn);
             }
 
             lista.appendChild(div);
         });
     });
 }
+
+/* SINCRONIZA ENTRE ABAS */
+window.addEventListener("storage", () => {
+    carregar();
+});
 </script>
 
 </body>
