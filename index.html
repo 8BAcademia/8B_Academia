@@ -27,7 +27,12 @@ body {
     box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
 
-input {
+label {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+input, textarea {
     width: 100%;
     padding: 8px;
     border: 2px solid #4da6ff;
@@ -49,9 +54,7 @@ button {
 }
 
 /* APP */
-.app {
-    display: none;
-}
+.app { display: none; }
 
 .nav {
     background: white;
@@ -60,10 +63,27 @@ button {
     gap: 10px;
 }
 
+.nav-btn {
+    background: transparent;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.nav-btn.active {
+    background: #4da6ff;
+    color: white;
+}
+
 .content {
     padding: 20px;
 }
 
+.tab { display: none; }
+.tab.active { display: block; }
+
+/* POST */
 .post {
     background: white;
     padding: 15px;
@@ -71,7 +91,7 @@ button {
     margin-bottom: 10px;
 }
 
-/* BOTÃO */
+/* BOTÃO + */
 .fab {
     position: fixed;
     bottom: 20px;
@@ -97,7 +117,7 @@ button {
     background: white;
     padding: 20px;
     border-radius: 10px;
-    width: 300px;
+    width: 320px;
 }
 </style>
 </head>
@@ -108,10 +128,15 @@ button {
 <div id="loginScreen" class="login-container">
     <div class="login-box">
         <h2>Entrar</h2>
-        <input id="user" placeholder="Seu nome">
-        <input id="pass" type="password" placeholder="Senha">
-        <button onclick="login()">Entrar</button>
+
+        <label>Nome</label>
+        <input id="user">
+
+        <label>Senha</label>
+        <input id="pass" type="password">
         <div id="erro" style="color:red"></div>
+
+        <button onclick="login()">Entrar</button>
     </div>
 </div>
 
@@ -119,32 +144,45 @@ button {
 <div id="app" class="app">
 
     <div class="nav">
-        <button onclick="trocar('pergunta')">Perguntas</button>
+        <button class="nav-btn active" onclick="trocar('pergunta', this)">Perguntas</button>
+        <button class="nav-btn" onclick="trocar('materia', this)">Matéria</button>
+        <button class="nav-btn" onclick="trocar('dever', this)">Dever</button>
     </div>
 
     <div class="content">
-        <div id="pergunta"></div>
+        <div id="pergunta" class="tab active"></div>
+        <div id="materia" class="tab">Somente administradores podem postar matérias</div>
+        <div id="dever" class="tab">Somente administradores podem postar deveres</div>
     </div>
 
-    <button class="fab" onclick="abrirModal()">+</button>
+    <button id="fab" class="fab" onclick="abrirModal()">+</button>
 </div>
 
 <!-- MODAL -->
 <div id="modal" class="modal">
     <div class="modal-box">
+
         <h3>Criar postagem</h3>
-        <input id="titulo" placeholder="Título">
-        <textarea id="desc" placeholder="Descrição"></textarea>
+
+        <label>Título</label>
+        <input id="titulo">
+
+        <label>Descrição</label>
+        <textarea id="desc"></textarea>
+
         <label>
-            <input type="checkbox" id="anon"> Anônimo
+            <input type="checkbox" id="anon"> Postagem anônima
         </label>
+
         <button onclick="postar()">Postar</button>
         <button onclick="fecharModal()">Cancelar</button>
+
     </div>
 </div>
 
 <script>
 let usuario = "";
+let admin = false;
 
 /* LOGIN */
 function login() {
@@ -154,17 +192,34 @@ function login() {
     senha.classList.remove("error");
     erro.innerText = "";
 
-    if (senha.value === "Turma8B" || senha.value === "8B_adm") {
-        usuario = document.getElementById("user").value || "Usuário";
-
-        document.getElementById("loginScreen").style.display = "none";
-        document.getElementById("app").style.display = "block";
-
-        carregarPosts();
+    if (senha.value === "Turma8B") {
+        admin = false;
+    } else if (senha.value === "8B_adm") {
+        admin = true;
     } else {
         senha.classList.add("error");
         erro.innerText = "Senha incorreta, tente novamente";
+        return;
     }
+
+    usuario = document.getElementById("user").value || "Usuário";
+
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("app").style.display = "block";
+
+    carregarPosts();
+}
+
+/* ABAS */
+function trocar(tab, el) {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.getElementById(tab).classList.add("active");
+
+    document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+    el.classList.add("active");
+
+    // botão + só nas perguntas
+    document.getElementById("fab").style.display = (tab === "pergunta") ? "block" : "none";
 }
 
 /* MODAL */
@@ -176,7 +231,7 @@ function fecharModal() {
     document.getElementById("modal").style.display = "none";
 }
 
-/* POSTS */
+/* POSTAR */
 function postar() {
     let titulo = document.getElementById("titulo").value;
     let desc = document.getElementById("desc").value;
@@ -188,12 +243,16 @@ function postar() {
 
     let posts = JSON.parse(localStorage.getItem("posts") || "[]");
 
-    posts.unshift({ titulo, desc, nome });
+    posts.unshift({ nome, titulo, desc });
 
     localStorage.setItem("posts", JSON.stringify(posts));
 
     fecharModal();
     carregarPosts();
+
+    document.getElementById("titulo").value = "";
+    document.getElementById("desc").value = "";
+    document.getElementById("anon").checked = false;
 }
 
 /* CARREGAR */
@@ -203,23 +262,37 @@ function carregarPosts() {
 
     let posts = JSON.parse(localStorage.getItem("posts") || "[]");
 
-    posts.forEach(p => {
+    posts.forEach((p, i) => {
         let div = document.createElement("div");
         div.className = "post";
+
         div.innerHTML = `
-    <div style="font-size:13px; color:#555;">${p.nome}</div>
-    <div style="font-size:16px; font-weight:bold; margin:5px 0;">${p.titulo}</div>
-    <div style="font-size:14px;">${p.desc}</div>
-`;
+            <div style="font-size:13px;color:#555;">${p.nome}</div>
+            <div style="font-weight:bold;margin:5px 0;">${p.titulo}</div>
+            <div>${p.desc}</div>
+        `;
+
+        if (admin) {
+            let btn = document.createElement("button");
+            btn.innerText = "Excluir";
+            btn.style.marginTop = "10px";
+
+            btn.onclick = () => {
+                posts.splice(i, 1);
+                localStorage.setItem("posts", JSON.stringify(posts));
+                carregarPosts();
+            };
+
+            div.appendChild(btn);
+        }
+
         lista.appendChild(div);
     });
 }
 
-/* SINCRONIZAR ENTRE ABAS */
-window.addEventListener("storage", function(e) {
-    if (e.key === "posts") {
-        carregarPosts();
-    }
+/* SINCRONIZA ENTRE ABAS */
+window.addEventListener("storage", (e) => {
+    if (e.key === "posts") carregarPosts();
 });
 </script>
 
